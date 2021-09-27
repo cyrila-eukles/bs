@@ -79,7 +79,7 @@ class Modifier
      */
     public function orderBy(string $dotProperty, $order = Criteria::ASC): ModelCriteria
     {
-        $property    = $this->before($dotProperty);
+        $property    = $this->before($dotProperty, Criteria::LEFT_JOIN);
         $method      = $this->buildMethodName(__FUNCTION__, $property);
         try{
             $this->query = $this->query->{$method}($order);
@@ -111,11 +111,11 @@ class Modifier
 
     /**
      * @param string $dotProperty
-     *
+     * @param string|null $joinType
      * @return string
      * @throws UseQueryFromDotNotationException
      */
-    private function before(string $dotProperty)
+    private function before(string $dotProperty, string $joinType = null)
     {
 
         $dotProperty = trim($dotProperty, UseQueryFromDotNotation::RELATION_SEP);
@@ -123,7 +123,7 @@ class Modifier
         $property = ucfirst(array_pop($parts));
 
         $this->dotUseQuery = new UseQueryFromDotNotation($this->query);
-        $this->query = $this->dotUseQuery->fromArray($parts)->useQuery();
+        $this->query = $this->dotUseQuery->fromArray($parts)->useQuery(null, $joinType);
 
         return $property;
     }
